@@ -8,6 +8,7 @@
 	class Terminal
 	{
 		private static array $commands = [];
+		private static bool $configured = false;
 
 		public const RED = 31;
 		public const GREEN = 32;
@@ -21,6 +22,7 @@
 		{
 			$root = self::getProjectRootPath();
 
+			var_dump($root.$paths);
 			if (is_string($paths)) {
 				$paths = [$paths];
 			}
@@ -54,7 +56,7 @@
 
 		public static function capture(array $args, bool $reset = false): void
 		{
-
+			self::setupDefaultCommands();
 
 			$command = $args[1] ?? '';
 			$params = array_slice($args, 2);
@@ -177,5 +179,12 @@
 			}
 
 			return dirname(__DIR__);
+		}
+
+		private static function setupDefaultCommands(): void
+		{
+			if (!self::$configured) {
+				self::config('commands');
+			}
 		}
 	}

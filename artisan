@@ -26,5 +26,4 @@
 		}
 	});
 
-	Terminal::config('commands');
 	Terminal::capture($argv);

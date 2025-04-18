@@ -9,10 +9,7 @@
         "psr-4": {
             "App\\Console\\Commands\\": "commands/",
             "App\\Console\\": "src/"
-        },
-        "files": [
-            "src/Startup.php"
-        ]
+        }
     },
     "type": "library",
     "license": "MIT",
