@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+
+	print_r($argv);
+	print_r(trim(fgets(STDIN)));
+
+//    while (true) {
+//		$input = trim(fgets(STDIN));
+//
+//		if ($input === 'exit') {
+//			break;
+//		}
+//	}

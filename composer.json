@@ -1,0 +1,28 @@
+{
+    "name": "roy404/artisan",
+    "description": "",
+    "keywords": [
+        "php",
+        "console"
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\Console\\Commands\\": "commands/",
+            "App\\Console\\": "src/"
+        }
+    },
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Robroy B Canales",
+            "email": "canales.robroy123@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "roy404/request": "^3.0"
+    }
+}
