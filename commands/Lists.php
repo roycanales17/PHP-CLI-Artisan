@@ -7,7 +7,7 @@
 
 	class Lists extends Command
 	{
-		protected string $signature = 'lists';
+		protected string $signature = 'list';
 		protected string $description = 'Displays all the available methods';
 
 		public function handle(): void
@@ -19,23 +19,36 @@
 				$signature = $command['signature'];
 				$description = $command['description'];
 
-				if ($signature == 'lists')
-					continue;
-
 				if (strpos($signature, ':') !== false) {
 					[$group, $sub] = explode(':', $signature, 2);
 					if ($sub) {
-						$padded = str_pad($signature, 35);
+						$padded = $this->info(str_pad($signature, 35), Terminal::GREEN, return: true);
 						$grouped[$group][] = "{$padded}{$description}";
 					}
 				} else {
-					$grouped[$signature] = str_pad($signature, 35) . $description;
+					$grouped["_$signature"] = str_pad($signature, 37) . $this->info($description, return: true);
 				}
 			}
 
 			$this->info("\nAvailable Commands:", Terminal::YELLOW);
 
+			$regrouped = [];
 			foreach ($grouped as $group => $subCommands) {
+				if (is_string($subCommands)) {
+					$regrouped[$group] = $subCommands;
+				}
+			}
+
+			if ($regrouped)
+				$regrouped[' '] = '';
+
+			foreach ($grouped as $group => $subCommands) {
+				if (!is_string($subCommands)) {
+					$regrouped[$group] = $subCommands;
+				}
+			}
+
+			foreach ($regrouped as $group => $subCommands) {
 				if (is_string($subCommands)) {
 					$this->info("  {$subCommands}", Terminal::BLUE);
 				} else {

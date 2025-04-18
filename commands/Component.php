@@ -1,24 +1,17 @@
 <?php
 
-	namespace App\Console\Commands;
+	namespace Commands;
 
 	use App\Console\Command;
 
-	class SendBirthdayEmails extends Command
+	class Component extends Command
 	{
-		// This is the command you run in the terminal: `php artisan emails:birthday`
-		protected $signature = 'emails:birthday';
+		protected string $signature = 'make:component';
+		protected string $description = 'Creates stream wire component';
 
-		// This is what shows in the `php artisan list`
-		protected $description = 'Send birthday emails to users';
-
-		public function handle(): int
+		public function handle($className = ''): void
 		{
-			// Your logic goes here
-			\Log::info('Sending birthday emails...');
-			// e.g., dispatch a job or service
-
-			$this->info('Birthday emails sent!');
-			return Command::SUCCESS;
+			$this->info('Creating stream wire component...');
+			$this->success('Successfully created stream wire component.');
 		}
 	}
