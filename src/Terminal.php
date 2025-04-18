@@ -18,9 +18,11 @@
 		public const CYAN = 36;
 		public const GRAY = 37;
 
-		public static function config(array|string $paths): void
+		public static function config(array|string $paths, string $root = ''): void
 		{
-			$root = dirname(__DIR__);
+			if (!$root)
+				$root = dirname(__DIR__);
+
 			if (is_string($paths)) {
 				$paths = [$paths];
 			}
