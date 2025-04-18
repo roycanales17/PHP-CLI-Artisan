@@ -174,6 +174,7 @@
 		{
 			if (!self::$configured) {
 				self::config('commands');
+				self::$configured = true;
 			}
 		}
 	}
