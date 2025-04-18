@@ -20,9 +20,7 @@
 
 		public static function config(array|string $paths): void
 		{
-			$root = self::getProjectRootPath();
-
-			var_dump($root.$paths);
+			$root = dirname(__DIR__);
 			if (is_string($paths)) {
 				$paths = [$paths];
 			}
@@ -35,6 +33,7 @@
 				if (is_dir($directory)) {
 					foreach (scandir($directory) as $file) {
 						if ($file !== '.' && $file !== '..' && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
+							require_once "$directory/$file";
 							$class = $namespace . '\\' . pathinfo($file, PATHINFO_FILENAME);
 
 							if (class_exists($class)) {

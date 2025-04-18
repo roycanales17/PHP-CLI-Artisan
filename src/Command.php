@@ -26,7 +26,7 @@
 
 		protected function root(): string
 		{
-			return Terminal::getProjectRootPath();
+			return dirname(__DIR__);
 		}
 
 		protected function perform(string $command, array $args = [], bool $execute = false): void
