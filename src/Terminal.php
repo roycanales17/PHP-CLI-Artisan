@@ -170,16 +170,6 @@
 			return $commands;
 		}
 
-		public static function getProjectRootPath(): string
-		{
-			$vendorPos = strpos(__DIR__, 'vendor');
-			if ($vendorPos !== false) {
-				return substr(__DIR__, 0, $vendorPos);
-			}
-
-			return dirname(__DIR__);
-		}
-
 		private static function setupDefaultCommands(): void
 		{
 			if (!self::$configured) {
