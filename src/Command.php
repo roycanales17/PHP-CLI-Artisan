@@ -40,6 +40,25 @@
 			}
 		}
 
+		protected function create(string $filename, string $content, string $directory): bool
+		{
+			if (!is_dir($directory)) {
+				if (!mkdir($directory, 0777, true) && !is_dir($directory)) {
+					return false;
+				}
+			}
+
+			$filePath = $directory . '/' . $filename;
+
+			if (file_exists($filePath)) {
+				$this->error("File '{$filename}' already exists.");
+				return false;
+			}
+
+			return file_put_contents($filePath, $content) !== false;
+		}
+
+
 		public function getSignature(): string
 		{
 			return $this->signature;

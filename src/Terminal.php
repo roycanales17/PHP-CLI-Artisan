@@ -136,7 +136,8 @@
 			$input = trim(fgets(STDIN));
 
 			if ($format) {
-				$input = preg_split('/\s+/', trim($input));
+				preg_match_all('/("[^"]*"|\'[^\']*\'|\S+)/', trim($input), $matches);
+				$input = array_map(fn($v) => trim($v, '\'"'), $matches[0]);
 				array_unshift($input, 'artisan');
 			}
 

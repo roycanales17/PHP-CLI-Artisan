@@ -65,7 +65,9 @@
 		public function execute(): void
 		{
 			Terminal::output(function($args) {
-				$args = preg_split('/\s+/', trim($args));
+				preg_match_all('/("[^"]*"|\'[^\']*\'|\S+)/', trim($args), $matches);
+				$args = array_map(fn($v) => trim($v, '\'"'), $matches[0]);
+
 				$command = $args[0] ?? '';
 				$params = array_slice($args, 1);
 
