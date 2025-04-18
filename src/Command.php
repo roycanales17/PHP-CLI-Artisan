@@ -24,9 +24,9 @@
 			Terminal::warn("$message");
 		}
 
-		protected function root(): string
+		protected function root(string $path): string
 		{
-			return dirname(__DIR__);
+			return dirname(__DIR__) . ( $path ? "/" . trim($path, '/') : '' );
 		}
 
 		protected function perform(string $command, array $args = [], bool $execute = false): void

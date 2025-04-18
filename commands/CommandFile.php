@@ -18,15 +18,19 @@
 
 			$this->info('⏳ Initializing command file generation...');
 
-			if ($signature)
-				$signature = strtolower($signature);
+			$className = preg_replace('/[^A-Za-z0-9_]/', '', $className);
+			$className = ucfirst($className);
 
-			if ($description)
+			if (!empty($signature)) {
+				$signature = strtolower(trim($signature));
+			}
+
+			if (!empty($description)) {
 				$description = trim(ucfirst($description));
+			}
 
 			$filename = $className . '.php';
 			$content = <<<HTML
-			<> 
 			<?php
 
 				namespace Commands;
@@ -43,10 +47,9 @@
 						\$this->info("Executing {$className} command...");
 					}
 				}
-			</>	
 			HTML;
 
-			if ($this->create($filename, $content, __DIR__ . '/Commands')) {
+			if ($this->create($filename, $content, $this->root('/Commands'))) {
 				$this->success("✅ Command file '{$filename}' has been successfully created and is ready for use.");
 				return;
 			}
