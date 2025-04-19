@@ -9,6 +9,7 @@
 	{
 		private static array $commands = [];
 		private static bool $configured = false;
+		private static array $logs = [];
 
 		public const RED = 31;
 		public const GREEN = 32;
@@ -68,14 +69,14 @@
 			} else {
 				if ($reset) {
 					if (self::handle($command, $params, true)) {
-						self::output(function($args) {
+						self::input(function($args) {
 							self::capture($args, true);
 						}, true);
 						return;
 					}
 				} else {
 					if (self::handle('list', $params, true)) {
-						self::output(function($args) {
+						self::input(function($args) {
 							self::capture($args, true);
 						}, true);
 						return;
@@ -86,7 +87,7 @@
 			self::error('Invalid action.');
 
 			if ($reset) {
-				self::output(function($args) {
+				self::input(function($args) {
 					self::capture($args, true);
 				}, true);
 			}
@@ -131,9 +132,90 @@
 			return '';
 		}
 
-		public static function output(Closure $callback, bool $format = false): void
+		public static function input(Closure $callback, bool $format = false): void
 		{
-			$input = trim(fgets(STDIN));
+			$input = '';
+			$historyIndex = null;
+			$cursorPosition = 0;
+			$logs = self::$logs ?? [];
+
+			system('stty -icanon -echo');
+
+			while (true) {
+				$char = fgetc(STDIN);
+
+				if ($char === "\033") {
+					$char2 = fgetc(STDIN);
+					$char3 = fgetc(STDIN);
+					$seq = $char . $char2 . $char3;
+
+					switch ($seq) {
+						case "\033[A": // Arrow Up
+							if (!empty($logs)) {
+								if ($historyIndex === null) {
+									$historyIndex = count($logs) - 1;
+								} elseif ($historyIndex > 0) {
+									$historyIndex--;
+								}
+
+								echo "\r\033[K";
+								$input = $logs[$historyIndex];
+								$cursorPosition = strlen($input);
+								echo $input;
+							}
+							break;
+
+						case "\033[B": // Arrow Down
+							if (!empty($logs) && $historyIndex !== null) {
+								if ($historyIndex < count($logs) - 1) {
+									$historyIndex++;
+									$input = $logs[$historyIndex];
+								} else {
+									$historyIndex = null;
+									$input = '';
+								}
+
+								echo "\r\033[K";
+								$cursorPosition = strlen($input);
+								echo $input;
+							}
+							break;
+
+						case "\033[C": // Arrow Right
+							if ($cursorPosition < strlen($input)) {
+								echo "\033[1C";
+								$cursorPosition++;
+							}
+							break;
+
+						case "\033[D": // Arrow Left
+							if ($cursorPosition > 0) {
+								echo "\033[1D";
+								$cursorPosition--;
+							}
+							break;
+
+						default:
+							echo "\nUnknown sequence: " . bin2hex($seq) . "\n";
+					}
+				} elseif ($char === "\n") { // Enter key
+					echo "\n";
+					break;
+				} elseif (ord($char) === 127) { // Backspace/Delete key
+					if (strlen($input) > 0 && $cursorPosition > 0) {
+						$cursorPosition--;
+						$input = substr($input, 0, -1);
+						echo "\033[1D \033[1D";
+					}
+				} else { // Regular characters
+					$input .= $char;
+					$cursorPosition++;
+					echo $char;
+				}
+			}
+
+			system('stty icanon echo');
+			self::$logs[] = $input;
 
 			if ($format) {
 				preg_match_all('/("[^"]*"|\'[^\']*\'|\S+)/', trim($input), $matches);

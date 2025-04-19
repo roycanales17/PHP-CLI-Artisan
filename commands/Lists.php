@@ -64,7 +64,7 @@
 
 		public function execute(): void
 		{
-			Terminal::output(function($args) {
+			Terminal::input(function($args) {
 				preg_match_all('/("[^"]*"|\'[^\']*\'|\S+)/', trim($args), $matches);
 				$args = array_map(fn($v) => trim($v, '\'"'), $matches[0]);
 
