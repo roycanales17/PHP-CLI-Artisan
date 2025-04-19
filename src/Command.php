@@ -58,6 +58,11 @@
 			return file_put_contents($filePath, $content) !== false;
 		}
 
+		protected function confirm(string $message, array $opt = ['no', 'yes']): int
+		{
+			return Terminal::question($message, $opt);
+		}
+
 
 		public function getSignature(): string
 		{

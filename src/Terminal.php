@@ -255,6 +255,26 @@
 			return $commands;
 		}
 
+		public static function question(string $message, array $options = ['no', 'yes']): int {
+			echo $message . PHP_EOL . PHP_EOL;
+
+			foreach ($options as $index => $option) {
+				echo "  [$index] $option" . PHP_EOL;
+			}
+
+			echo PHP_EOL . "Select an option (0-" . (count($options) - 1) . "): ";
+
+			while (true) {
+				$input = trim(fgets(STDIN));
+
+				if (is_numeric($input) && isset($options[(int)$input])) {
+					return (int)$input;
+				}
+
+				echo "Invalid selection. Try again: ";
+			}
+		}
+
 		private static function setupDefaultCommands(): void
 		{
 			if (!self::$configured) {
