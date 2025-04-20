@@ -30,7 +30,7 @@
 				}
 			}
 
-			$this->info("\nAvailable Commands:", Terminal::YELLOW);
+			$this->info("Available Commands:", Terminal::YELLOW);
 
 			$regrouped = [];
 			foreach ($grouped as $group => $subCommands) {

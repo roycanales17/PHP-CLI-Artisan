@@ -50,10 +50,10 @@
 			HTML;
 
 			if ($this->create($filename, $content, dirname('./'). '/commands')) {
-				$this->success("✅ Command file '{$filename}' has been successfully created and is ready for use.");
+				$this->success("Command file '{$filename}' has been successfully created and is ready for use.");
 				return;
 			}
 
-			$this->error("❌ Failed to create the file '{$filename}'.");
+			$this->error("Failed to create the file '{$filename}'.");
 		}
 	}

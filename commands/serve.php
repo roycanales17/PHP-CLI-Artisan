@@ -11,18 +11,27 @@
 
 		public function handle($className = ''): void
 		{
-			$this->info('Starting the application server...');
+			$this->info("⏳ Starting the application server...");
 
 			$port = 8000;
 			$host = 'localhost';
 
-			while (!$this->isPortAvailable($host, $port))
+			$this->info("⏳ Initializing application server with port ($port)...");
+			while (!$this->isPortAvailable($host, $port)) {
 				$port++;
+				$this->info("⏳ Initializing application server again with port ($port)...");
+			}
 
-			$this->success("Server running at http://{$host}:{$port}");
+			$root = $this->findProjectRoot() ."public";
+			if (file_exists($root)) {
+				$this->success("Server running at http://{$host}:{$port}");
 
-			$root = $this->findProjectRoot() ."/public";
-			passthru("php -S {$host}:{$port} -t {$root}");
+				passthru("php -S {$host}:{$port} -t {$root}");
+				return;
+			}
+
+			$this->error("Cannot find root directory `{$root}`", false);
+			$this->warn("Make sure the index file is exist on `{$root}` directory");
 		}
 
 		private function isPortAvailable(string $host, int $port): bool

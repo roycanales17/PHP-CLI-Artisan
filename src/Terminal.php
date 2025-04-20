@@ -7,6 +7,10 @@
 
 	class Terminal
 	{
+		private string $success = '✅';
+		private string $error = '❌';
+		private string $loader = '⏳';
+
 		private static array $commands = [];
 		private static bool $configured = false;
 		private static array $logs = [];
@@ -62,6 +66,8 @@
 
 			$command = $args[1] ?? '';
 			$params = array_slice($args, 2);
+
+			echo "\n";
 
 			if (!$reset && $command) {
 				if (self::handle($command, $params))
@@ -199,7 +205,7 @@
 							echo "\nUnknown sequence: " . bin2hex($seq) . "\n";
 					}
 				} elseif ($char === "\n") { // Enter key
-					echo "\n";
+					echo "\n\n";
 					break;
 				} elseif (ord($char) === 127) { // Backspace/Delete key
 					if (strlen($input) > 0 && $cursorPosition > 0) {
@@ -215,7 +221,9 @@
 			}
 
 			system('stty icanon echo');
-			self::$logs[] = $input;
+
+			if ($input !== '')
+				self::$logs[] = $input;
 
 			if ($format) {
 				preg_match_all('/("[^"]*"|\'[^\']*\'|\S+)/', trim($input), $matches);
@@ -227,19 +235,31 @@
 				$callback($input);
 		}
 
-		public static function error(string $message): void
+		public static function error(string $message, bool $newLine = true): void
 		{
-			self::info("[ERROR] $message\n", self::RED);
+			$n = "\n";
+			if (!$newLine)
+				$n = "";
+
+			self::info("[ERROR] $message$n", self::RED);
 		}
 
-		public static function success(string $message): void
+		public static function success(string $message, bool $newLine = true): void
 		{
-			self::info("[SUCCESS] $message\n", self::GREEN);
+			$n = "\n";
+			if (!$newLine)
+				$n = "";
+
+			self::info("[SUCCESS] $message$n", self::GREEN);
 		}
 
-		public static function warn(string $message): void
+		public static function warn(string $message, bool $newLine = true): void
 		{
-			self::info("[WARNING] $message\n", self::YELLOW);
+			$n = "\n";
+			if (!$newLine)
+				$n = "";
+
+			self::info("[WARNING] $message$n", self::YELLOW);
 		}
 
 		public static function fetchAllCommands(): array

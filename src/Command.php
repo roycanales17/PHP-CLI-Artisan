@@ -9,19 +9,19 @@
 			return Terminal::info($message, $code, $return);
 		}
 
-		protected function error(string $message): void
+		protected function error(string $message, bool $newLine = true): void
 		{
-			Terminal::error("$message");
+			Terminal::error($message, $newLine);
 		}
 
-		protected function success(string $message): void
+		protected function success(string $message, bool $newLine = true): void
 		{
-			Terminal::success("$message");
+			Terminal::success($message, $newLine);
 		}
 
-		protected function warn(string $message): void
+		protected function warn(string $message, bool $newLine = true): void
 		{
-			Terminal::warn("$message");
+			Terminal::warn($message, $newLine);
 		}
 
 		protected function root(string $path): string

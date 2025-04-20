@@ -11,7 +11,7 @@
 
 		public function handle(): void
 		{
-			$this->info('Terminating the application...');
+			$this->info('⏳ Terminating the application...');
 			$this->success('Application terminated successfully.');
 			exit();
 		}
