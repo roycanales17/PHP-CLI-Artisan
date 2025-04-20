@@ -22,7 +22,7 @@
 				$this->info("⏳ Initializing application server again with port ($port)...");
 			}
 
-			$root = $this->findProjectRoot() ."public";
+			$root = $this->findProjectRoot() ."/public";
 			if (file_exists($root)) {
 				$this->success("Server running at http://{$host}:{$port}");
 
