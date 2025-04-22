@@ -298,8 +298,11 @@
 		private static function setupDefaultCommands(): void
 		{
 			if (!self::$configured) {
-				self::config('commands');
 				self::$configured = true;
+				self::config('commands');
+
+				foreach (self::fetchAllCommands() as $command)
+					self::$logs[] = $command['signature'];
 			}
 		}
 	}
