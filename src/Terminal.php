@@ -3,6 +3,7 @@
 	namespace App\Console;
 
 	use Closure;
+	use Commands\Lists;
 	use ReflectionClass;
 
 	class Terminal
@@ -301,8 +302,8 @@
 				self::$configured = true;
 				self::config('commands');
 
-				foreach (self::fetchAllCommands() as $command)
-					self::$logs[] = $command['signature'];
+				foreach (Lists::retrieveLists() as $command)
+					self::$logs[] = $command;
 			}
 		}
 	}

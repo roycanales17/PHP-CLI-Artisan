@@ -15,6 +15,8 @@
 			$grouped = [];
 			$commands = Terminal::fetchAllCommands();
 
+			print_r(self::retrieveLists());
+
 			foreach ($commands as $command) {
 				$signature = $command['signature'];
 				$description = $command['description'];
@@ -73,5 +75,37 @@
 
 				$this->perform($command, $params, true);
 			});
+		}
+
+		public static function retrieveLists(): array
+		{
+			$grouped = [];
+			$commands = Terminal::fetchAllCommands();
+
+			foreach ($commands as $command) {
+				$signature = $command['signature'];
+				if (strpos($signature, ':') !== false) {
+					[$group, $sub] = explode(':', $signature, 2);
+					if ($sub) {
+						$grouped[$group][] = $signature;
+					}
+				} else {
+					$grouped[$signature] = $signature;
+				}
+			}
+
+			$group_1 = [];
+			$group_2 = [];
+			foreach ($grouped as $group => $subCommands) {
+				if (is_string($subCommands)) {
+					$group_1[] = $group;
+				} else {
+					foreach ($subCommands as $subCommand) {
+						$group_2[] = $subCommand;
+					}
+				}
+			}
+
+			return array_merge($group_1, $group_2);
 		}
 	}
