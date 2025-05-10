@@ -9,7 +9,7 @@
 		protected string $signature = 'serve';
 		protected string $description = 'Serve the application out of maintenance mode';
 
-		public function handle($className = ''): void
+		public function handle(): void
 		{
 			$this->info("⏳ Starting the application server...");
 
