@@ -1,5 +1,5 @@
 # Web-Artisan
-A custom Artisan-like command runner for web environments. Run your Laravel-style Artisan commands from the browser or other interfaces.
+A custom Artisan-like command runner for web environments. Run your custom Artisan commands from the CLI session.
 
 ## Installation
 Install via Composer:
