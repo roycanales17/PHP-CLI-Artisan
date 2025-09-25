@@ -43,7 +43,7 @@
 		private static array $schedules = [];
 
 		/** @var string Path to the PHP file that should be executed (usually artisan). */
-		private static string $pathToExecute = '';
+		private static string $artisan = '';
 
 		/**
 		 * Register a new command schedule.
@@ -62,15 +62,17 @@
 		/**
 		 * Set the path to the PHP entry point (usually "artisan").
 		 *
-		 * @param string $pathToExecute
+		 * @param string $artisan
+		 * @param string $artisan
 		 * @throws Exception If the file does not exist.
 		 */
-		public static function setPath(string $pathToExecute): void
+		public static function setPath(string $pathToExecute, string $artisan): void
 		{
-			if (!file_exists($pathToExecute)) {
-				throw new Exception("Path to execute not found: {$pathToExecute}");
+			if (!file_exists($artisan)) {
+				throw new Exception("Path to execute not found: {$artisan}");
 			}
-			self::$pathToExecute = $pathToExecute;
+			self::$artisan = $artisan;
+			require_once $pathToExecute;
 		}
 
 		/**
@@ -96,7 +98,7 @@
 
 					$cmd = sprintf(
 						'php %s %s %s > /dev/null 2>&1 &',
-						escapeshellarg(self::$pathToExecute), // artisan path
+						escapeshellarg(self::$artisan), // artisan path
 						escapeshellarg($schedule->command),   // command name
 						$args                                 // command args
 					);
