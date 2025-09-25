@@ -28,7 +28,7 @@
 	 * Schedule::execute();
 	 * ```
 	 */
-	class Schedule
+	final class Schedule
 	{
 		/** @var string The Artisan command or script to execute. */
 		private string $command;
