@@ -93,16 +93,16 @@
 				$cron = new CronExpression($schedule->expression);
 
 				if ($cron->isDue($now)) {
-					// Escape arguments for safety
 					$args = implode(' ', array_map('escapeshellarg', $schedule->args));
 
-					$cmd = sprintf(
-						'php %s %s %s > /dev/null 2>&1 &',
-						escapeshellarg(self::$artisan), // artisan path
-						escapeshellarg($schedule->command),   // command name
-						$args                                 // command args
-					);
+					$parts = [
+						'php',
+						escapeshellarg(self::$artisan),
+						escapeshellarg($schedule->command),
+						$args,
+					];
 
+					$cmd = implode(' ', array_filter($parts)) . ' > /dev/null 2>&1 &';
 					exec($cmd);
 				}
 			}
