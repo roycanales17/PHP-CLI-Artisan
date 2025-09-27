@@ -42,8 +42,8 @@
 		/** @var Schedule[] Holds all registered schedules. */
 		private static array $schedules = [];
 
-		/** @var string Path to the PHP file that should be executed (usually artisan). */
-		private static string $artisan = '';
+		/** @var string Path to the PHP file that should be executed. */
+		private static string $route = '';
 
 		/**
 		 * Register a new command schedule.
@@ -62,17 +62,25 @@
 		/**
 		 * Set the path to the PHP entry point (usually "artisan").
 		 *
-		 * @param string $artisan
-		 * @param string $artisan
+		 * @param string $pathToExecute
 		 * @throws Exception If the file does not exist.
 		 */
-		public static function setPath(string $pathToExecute, string $artisan): void
+		public static function setPath(string $pathToExecute): void
 		{
-			if (!file_exists($artisan)) {
-				throw new Exception("Path to execute not found: {$artisan}");
+			if (!file_exists($pathToExecute)) {
+				throw new Exception("Path to execute not found: {$pathToExecute}");
 			}
-			self::$artisan = $artisan;
-			require_once $pathToExecute;
+			self::$route = $pathToExecute;
+		}
+
+		/**
+		 * Path of all the scheduler routes.
+		 *
+		 * @return string
+		 */
+		public static function getRoute(): string
+		{
+			return self::$route;
 		}
 
 		/**
@@ -85,7 +93,7 @@
 		 *
 		 * @return void
 		 */
-		public static function execute(): void
+		public static function execute(string $filename): void
 		{
 			$now = new DateTime();
 
@@ -97,7 +105,7 @@
 
 					$parts = [
 						'php',
-						escapeshellarg(self::$artisan),
+						escapeshellarg($filename),
 						escapeshellarg($schedule->command),
 						$args,
 					];
