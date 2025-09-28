@@ -93,7 +93,7 @@
 		 *
 		 * @return void
 		 */
-		public static function execute(string $filename): void
+		public static function execute(string $filename, bool $print = false): void
 		{
 			$now = new DateTime();
 
@@ -111,6 +111,12 @@
 					];
 
 					$cmd = implode(' ', array_filter($parts)) . ' >> /var/log/cron/artisan.log 2>&1 &';
+					if ($print) {
+						echo "Executing scheduled command:\n  $cmd\n";
+						echo "Logs:\n ";
+						echo "/var/log/cron/artisan.log\n";
+					}
+
 					exec($cmd);
 				}
 			}
