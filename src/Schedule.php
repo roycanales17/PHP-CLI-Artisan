@@ -104,13 +104,13 @@
 					$args = implode(' ', array_map('escapeshellarg', $schedule->args));
 
 					$parts = [
-						'php',
+						'/usr/local/bin/php',
 						escapeshellarg($filename),
 						escapeshellarg($schedule->command),
 						$args,
 					];
 
-					$cmd = implode(' ', array_filter($parts)) . ' > /dev/null 2>&1 &';
+					$cmd = implode(' ', array_filter($parts)) . ' >> /var/log/cron/artisan.log 2>&1 &';
 					exec($cmd);
 				}
 			}
