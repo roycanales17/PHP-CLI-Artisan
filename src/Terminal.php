@@ -209,7 +209,7 @@
 			$cursorPosition = 0;
 			$logs          = self::$logs ?? [];
 
-			system('stty -icanon -echo');
+			\system('stty -icanon -echo');
 
 			while (true) {
 				$char = fgetc(STDIN);
