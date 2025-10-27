@@ -204,92 +204,98 @@
 		 */
 		public static function input(Closure $callback, bool $format = false): void
 		{
-			$input         = '';
-			$historyIndex  = null;
-			$cursorPosition = 0;
-			$logs          = self::$logs ?? [];
+			$logs = self::$logs ?? [];
+			$input = '';
 
-			\system('stty -icanon -echo');
+			// Only use stty-based raw mode if we have a real terminal
+			$isTTY = function_exists('posix_isatty') && posix_isatty(STDIN);
 
-			while (true) {
-				$char = fgetc(STDIN);
+			if ($isTTY) {
+				$historyIndex = null;
+				$cursorPosition = 0;
 
-				if ($char === "\033") { // Escape sequence
-					$char2 = fgetc(STDIN);
-					$char3 = fgetc(STDIN);
-					$seq   = $char . $char2 . $char3;
+				system('stty -icanon -echo');
 
-					switch ($seq) {
-						case "\033[A": // Arrow Up
-							if (!empty($logs)) {
-								if ($historyIndex === null) {
-									$historyIndex = count($logs) - 1;
-								} elseif ($historyIndex > 0) {
-									$historyIndex--;
-								}
+				while (true) {
+					$char = fgetc(STDIN);
 
-								echo "\r\033[K";
-								$input          = $logs[$historyIndex];
-								$cursorPosition = strlen($input);
-								echo $input;
-							}
-							break;
+					if ($char === "\033") {
+						$char2 = fgetc(STDIN);
+						$char3 = fgetc(STDIN);
+						$seq = $char . $char2 . $char3;
 
-						case "\033[B": // Arrow Down
-							if (!empty($logs) && $historyIndex !== null) {
-								if ($historyIndex < count($logs) - 1) {
-									$historyIndex++;
+						switch ($seq) {
+							case "\033[A": // ↑
+								if (!empty($logs)) {
+									if ($historyIndex === null) {
+										$historyIndex = count($logs) - 1;
+									} elseif ($historyIndex > 0) {
+										$historyIndex--;
+									}
+									echo "\r\033[K";
 									$input = $logs[$historyIndex];
-								} else {
-									$historyIndex = null;
-									$input        = '';
+									$cursorPosition = strlen($input);
+									echo $input;
 								}
+								break;
 
-								echo "\r\033[K";
-								$cursorPosition = strlen($input);
-								echo $input;
-							}
-							break;
+							case "\033[B": // ↓
+								if (!empty($logs) && $historyIndex !== null) {
+									if ($historyIndex < count($logs) - 1) {
+										$historyIndex++;
+										$input = $logs[$historyIndex];
+									} else {
+										$historyIndex = null;
+										$input = '';
+									}
+									echo "\r\033[K";
+									$cursorPosition = strlen($input);
+									echo $input;
+								}
+								break;
 
-						case "\033[C": // Arrow Right
-							if ($cursorPosition < strlen($input)) {
-								echo "\033[1C";
-								$cursorPosition++;
-							}
-							break;
+							case "\033[C": // →
+								if ($cursorPosition < strlen($input)) {
+									echo "\033[1C";
+									$cursorPosition++;
+								}
+								break;
 
-						case "\033[D": // Arrow Left
-							if ($cursorPosition > 0) {
-								echo "\033[1D";
-								$cursorPosition--;
-							}
-							break;
-
-						default:
-							echo "\nUnknown sequence: " . bin2hex($seq) . "\n";
+							case "\033[D": // ←
+								if ($cursorPosition > 0) {
+									echo "\033[1D";
+									$cursorPosition--;
+								}
+								break;
+						}
+					} elseif ($char === "\n") {
+						echo "\n\n";
+						break;
+					} elseif (ord($char) === 127) { // Backspace
+						if (strlen($input) > 0 && $cursorPosition > 0) {
+							$cursorPosition--;
+							$input = substr($input, 0, -1);
+							echo "\033[1D \033[1D";
+						}
+					} else {
+						$input .= $char;
+						$cursorPosition++;
+						echo $char;
 					}
-				} elseif ($char === "\n") { // Enter
-					echo "\n\n";
-					break;
-				} elseif (ord($char) === 127) { // Backspace
-					if (strlen($input) > 0 && $cursorPosition > 0) {
-						$cursorPosition--;
-						$input = substr($input, 0, -1);
-						echo "\033[1D \033[1D";
-					}
-				} else { // Regular characters
-					$input .= $char;
-					$cursorPosition++;
-					echo $char;
 				}
+
+				system('stty icanon echo');
+			} else {
+				// ✅ Fallback for non-interactive environments (Hostinger)
+				$input = readline("> ");
 			}
 
-			system('stty icanon echo');
-
+			// Save to history
 			if ($input !== '') {
 				self::$logs[] = $input;
 			}
 
+			// Optional: split into args
 			if ($format) {
 				preg_match_all('/("[^"]*"|\'[^\']*\'|\S+)/', trim($input), $matches);
 				$input = array_map(fn($v) => trim($v, '\'"'), $matches[0]);
