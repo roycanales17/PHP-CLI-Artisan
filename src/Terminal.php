@@ -207,95 +207,43 @@
 			$logs = self::$logs ?? [];
 			$input = '';
 
-			// Only use stty-based raw mode if we have a real terminal
-			$isTTY = function_exists('posix_isatty') && posix_isatty(STDIN);
-
-			if ($isTTY) {
-				$historyIndex = null;
-				$cursorPosition = 0;
-
-				system('stty -icanon -echo');
+			if (function_exists('readline_callback_handler_install')) {
+				// Install a handler that will be called for each keypress
+				readline_callback_handler_install('', function($line) use (&$input) {
+					$input = $line;
+				});
 
 				while (true) {
-					$char = fgetc(STDIN);
+					$r = [STDIN];
+					$w = $e = [];
+					$n = stream_select($r, $w, $e, null);
 
-					if ($char === "\033") {
-						$char2 = fgetc(STDIN);
-						$char3 = fgetc(STDIN);
-						$seq = $char . $char2 . $char3;
+					if ($n && in_array(STDIN, $r, true)) {
+						$char = stream_get_contents(STDIN, 1);
 
-						switch ($seq) {
-							case "\033[A": // ↑
-								if (!empty($logs)) {
-									if ($historyIndex === null) {
-										$historyIndex = count($logs) - 1;
-									} elseif ($historyIndex > 0) {
-										$historyIndex--;
-									}
-									echo "\r\033[K";
-									$input = $logs[$historyIndex];
-									$cursorPosition = strlen($input);
-									echo $input;
-								}
-								break;
-
-							case "\033[B": // ↓
-								if (!empty($logs) && $historyIndex !== null) {
-									if ($historyIndex < count($logs) - 1) {
-										$historyIndex++;
-										$input = $logs[$historyIndex];
-									} else {
-										$historyIndex = null;
-										$input = '';
-									}
-									echo "\r\033[K";
-									$cursorPosition = strlen($input);
-									echo $input;
-								}
-								break;
-
-							case "\033[C": // →
-								if ($cursorPosition < strlen($input)) {
-									echo "\033[1C";
-									$cursorPosition++;
-								}
-								break;
-
-							case "\033[D": // ←
-								if ($cursorPosition > 0) {
-									echo "\033[1D";
-									$cursorPosition--;
-								}
-								break;
-						}
-					} elseif ($char === "\n") {
-						echo "\n\n";
-						break;
-					} elseif (ord($char) === 127) { // Backspace
-						if (strlen($input) > 0 && $cursorPosition > 0) {
-							$cursorPosition--;
+						if ($char === "\n") {
+							echo "\n\n";
+							readline_callback_handler_remove();
+							break;
+						} elseif (ord($char) === 127) {
+							// Backspace
 							$input = substr($input, 0, -1);
 							echo "\033[1D \033[1D";
+						} else {
+							$input .= $char;
+							echo $char;
 						}
-					} else {
-						$input .= $char;
-						$cursorPosition++;
-						echo $char;
 					}
 				}
-
-				system('stty icanon echo');
 			} else {
-				// ✅ Fallback for non-interactive environments (Hostinger)
+				// fallback
 				$input = readline("> ");
 			}
 
-			// Save to history
 			if ($input !== '') {
 				self::$logs[] = $input;
 			}
 
-			// Optional: split into args
 			if ($format) {
 				preg_match_all('/("[^"]*"|\'[^\']*\'|\S+)/', trim($input), $matches);
 				$input = array_map(fn($v) => trim($v, '\'"'), $matches[0]);
