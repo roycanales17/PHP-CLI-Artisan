@@ -204,41 +204,87 @@
 		 */
 		public static function input(Closure $callback, bool $format = false): void
 		{
-			$logs = self::$logs ?? [];
-			$input = '';
+			$input         = '';
+			$historyIndex  = null;
+			$cursorPosition = 0;
+			$logs          = self::$logs ?? [];
 
-			if (function_exists('readline_callback_handler_install')) {
-				// Install a handler that will be called for each keypress
-				readline_callback_handler_install('', function($line) use (&$input) {
-					$input = $line;
-				});
+			system('stty -icanon -echo');
 
-				while (true) {
-					$r = [STDIN];
-					$w = $e = [];
-					$n = stream_select($r, $w, $e, null);
+			while (true) {
+				$char = fgetc(STDIN);
 
-					if ($n && in_array(STDIN, $r, true)) {
-						$char = stream_get_contents(STDIN, 1);
+				if ($char === "\033") { // Escape sequence
+					$char2 = fgetc(STDIN);
+					$char3 = fgetc(STDIN);
+					$seq   = $char . $char2 . $char3;
 
-						if ($char === "\n") {
-							echo "\n\n";
-							readline_callback_handler_remove();
+					switch ($seq) {
+						case "\033[A": // Arrow Up
+							if (!empty($logs)) {
+								if ($historyIndex === null) {
+									$historyIndex = count($logs) - 1;
+								} elseif ($historyIndex > 0) {
+									$historyIndex--;
+								}
+
+								echo "\r\033[K";
+								$input          = $logs[$historyIndex];
+								$cursorPosition = strlen($input);
+								echo $input;
+							}
 							break;
-						} elseif (ord($char) === 127) {
-							// Backspace
-							$input = substr($input, 0, -1);
-							echo "\033[1D \033[1D";
-						} else {
-							$input .= $char;
-							echo $char;
-						}
+
+						case "\033[B": // Arrow Down
+							if (!empty($logs) && $historyIndex !== null) {
+								if ($historyIndex < count($logs) - 1) {
+									$historyIndex++;
+									$input = $logs[$historyIndex];
+								} else {
+									$historyIndex = null;
+									$input        = '';
+								}
+
+								echo "\r\033[K";
+								$cursorPosition = strlen($input);
+								echo $input;
+							}
+							break;
+
+						case "\033[C": // Arrow Right
+							if ($cursorPosition < strlen($input)) {
+								echo "\033[1C";
+								$cursorPosition++;
+							}
+							break;
+
+						case "\033[D": // Arrow Left
+							if ($cursorPosition > 0) {
+								echo "\033[1D";
+								$cursorPosition--;
+							}
+							break;
+
+						default:
+							echo "\nUnknown sequence: " . bin2hex($seq) . "\n";
 					}
+				} elseif ($char === "\n") { // Enter
+					echo "\n\n";
+					break;
+				} elseif (ord($char) === 127) { // Backspace
+					if (strlen($input) > 0 && $cursorPosition > 0) {
+						$cursorPosition--;
+						$input = substr($input, 0, -1);
+						echo "\033[1D \033[1D";
+					}
+				} else { // Regular characters
+					$input .= $char;
+					$cursorPosition++;
+					echo $char;
 				}
-			} else {
-				// fallback
-				$input = readline("> ");
 			}
+
+			system('stty icanon echo');
 
 			if ($input !== '') {
 				self::$logs[] = $input;
