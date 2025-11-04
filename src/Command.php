@@ -52,7 +52,7 @@
 		 * @param bool $newLine Append a newline at the end (default true).
 		 * @return void
 		 */
-		protected function error(string $message, bool $newLine = true): void
+		protected function error(string $message, bool $newLine = false): void
 		{
 			Terminal::error($message, $newLine);
 		}
@@ -64,7 +64,7 @@
 		 * @param bool $newLine Append a newline at the end (default true).
 		 * @return void
 		 */
-		protected function success(string $message, bool $newLine = true): void
+		protected function success(string $message, bool $newLine = false): void
 		{
 			Terminal::success($message, $newLine);
 		}
@@ -76,7 +76,7 @@
 		 * @param bool $newLine Append a newline at the end (default true).
 		 * @return void
 		 */
-		protected function warn(string $message, bool $newLine = true): void
+		protected function warn(string $message, bool $newLine = false): void
 		{
 			Terminal::warn($message, $newLine);
 		}
