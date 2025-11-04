@@ -203,18 +203,6 @@
 		}
 
 		/**
-		 * Resolve the real absolute path for a given relative path.
-		 *
-		 * @param string $path Relative path to resolve.
-		 * @return string Absolute path.
-		 */
-		protected function getRealPath(string $path): string
-		{
-			$path = trim($path, '/');
-			return realpath(__DIR__ . "/../$path");
-		}
-
-		/**
 		 * Get the default directory for views.
 		 *
 		 * @return string Default views directory path.
